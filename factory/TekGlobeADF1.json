@@ -1,0 +1,9 @@
+{
+	"name": "TekGlobeADF1",
+	"location": "westeurope",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "23b90ec5-0820-475e-86fa-690387b7c949",
+		"tenantId": "dbb09a50-4191-448f-8690-afa28d265e4e"
+	}
+}

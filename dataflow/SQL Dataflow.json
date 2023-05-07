@@ -1,0 +1,109 @@
+{
+	"name": "SQL Dataflow",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "AzureSqlTable1",
+						"type": "DatasetReference"
+					},
+					"name": "ProductTable"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "AzureSqlTable2",
+						"type": "DatasetReference"
+					},
+					"name": "ProductArchive"
+				},
+				{
+					"dataset": {
+						"referenceName": "DelimitedText3",
+						"type": "DatasetReference"
+					},
+					"name": "RawContainer"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          ProductID as integer,",
+				"          Name as string,",
+				"          ProductNumber as string,",
+				"          Color as string,",
+				"          StandardCost as decimal(19,4),",
+				"          ListPrice as decimal(19,4),",
+				"          Size as string,",
+				"          Weight as decimal(8,2),",
+				"          ProductCategoryID as integer,",
+				"          ProductModelID as integer,",
+				"          SellStartDate as timestamp,",
+				"          SellEndDate as timestamp,",
+				"          DiscontinuedDate as timestamp,",
+				"          ThumbNailPhoto as binary,",
+				"          ThumbnailPhotoFileName as string,",
+				"          rowguid as string,",
+				"          ModifiedDate as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> ProductTable",
+				"ProductTable derive(ModifiedDate = toDate(substring(toString(ModifiedDate), 1, 10)),",
+				"          SellEndDate = toDate(substring(toString(SellEndDate), 1, 10)),",
+				"          SellStartDate = toDate(substring(toString(SellStartDate), 1, 10)),",
+				"          DiscontinuedDate = toDate(substring(toString(DiscontinuedDate), 1, 10)),",
+				"     partitionBy('hash', 1)) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          ProductArchiveID as integer,",
+				"          Name as string,",
+				"          ProductNumber as string,",
+				"          Color as string,",
+				"          StandardCost as decimal(19,4),",
+				"          ListPrice as decimal(19,4),",
+				"          Size as string,",
+				"          Weight as decimal(8,2),",
+				"          ProductCategoryID as integer,",
+				"          ProductModelID as integer,",
+				"          SellStartDate as timestamp,",
+				"          SellEndDate as timestamp,",
+				"          DiscontinuedDate as timestamp,",
+				"          ThumbnailPhotoFileName as string,",
+				"          rowguid as string,",
+				"          ModifiedDate as timestamp",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> ProductArchive",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          Column_1 as string,",
+				"          Column_2 as string,",
+				"          Column_3 as string,",
+				"          Column_4 as string,",
+				"          Column_5 as string,",
+				"          Column_6 as string,",
+				"          Column_7 as string",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> RawContainer"
+			]
+		}
+	}
+}
